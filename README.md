@@ -33,4 +33,14 @@ Rekord, hamyon, personajlar, taxtalar va ovoz holati shu brauzerning localStorag
 - `src/storage.js`: saqlash va personajlar.
 - `src/audio.js`: foydalanuvchi bosgandan keyin ishlaydigan Web Audio ovozlari.
 
-Tashqi modellar va audio talab qilinmaydi. Google shrift yuklanmasa tizim shrifti ishlaydi. WebGL kerak; eski telefonlarda soya va yuqori piksel zichligi ishlash tezligiga ta’sir qilishi mumkin. To‘qnashuvlar obyekt o‘lchami va qahramon balandligiga mos soddalashtirilgan hajmlar bilan tekshiriladi.
+Avatar modeli loyiha ichida saqlanadi; tashqi audio talab qilinmaydi. Google shrift yuklanmasa tizim shrifti ishlaydi. WebGL kerak; eski telefonlarda soya va yuqori piksel zichligi ishlash tezligiga ta’sir qilishi mumkin. To‘qnashuvlar obyekt o‘lchami va qahramon balandligiga mos soddalashtirilgan hajmlar bilan tekshiriladi.
+
+## Foydalanuvchi avatari
+
+Endi qahramon `public/models/avatar/model.fbx` faylidan `FBXLoader` orqali yuklanadi (12.7 MB). Skelet va 29 ta texture havolasi fayl ichida; qo‘shimcha PNG/JPG yoki material fayli kerak emas. Build ushbu modelni `dist/models/avatar/model.fbx` ga nusxalaydi. Eski geometrik qahramon kodi saqlangan, lekin o‘yinda ishlatilmaydi.
+
+FBX ichida **tayyor animatsiya kliplari yo‘q**. `src/avatar.js` skelet suyaklari orqali dasturiy yugurish, sakrash/uchish pozalari va soddalashtirilgan ixcham dumalash hosil qiladi. Bular motion capture animatsiyalari emas. Harakatlar orasidagi pozalar yumshatiladi; yugurish ritmi tezlikka moslashadi. Model bo‘yi 2.3 o‘yin birligiga moslanadi, oyoqlar har pozada yer/tom balandligiga to‘g‘rilanadi. To‘qnashuv tananing balandligi va posedagi kengligiga mos hisoblanadi.
+
+Avvalgi qahramon tanlash va ochish ma’lumotlari saqlanadi; ochilgan Lola va Sardor tanlanganda shu avatar ko‘ylagiga tegishli rang beriladi. Asosiy Aziz variantida original texture ranglari saqlanadi.
+
+Model ko‘rinmasa: `npm run dev` orqali oching, `public/models/avatar/model.fbx` mavjudligini tekshiring, so‘ng sahifani yangilang. Model yuklanishidagi xato o‘zbekcha oynada, texnik sababi brauzer konsolida ko‘rsatiladi. Dastlabki yuklash model hajmi sabab biroz vaqt olishi mumkin. Yaxshiroq tabiiy animatsiya uchun ayni skeletga mos Run/Jump/Roll kliplarini FBX ichiga eksport qilish kerak; animatsiya nomlari bo‘yicha tanlash va crossfade tayyorlangan.
