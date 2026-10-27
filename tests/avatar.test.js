@@ -30,8 +30,8 @@ test('supplied rig has embedded materials, no authored clips, and grounded poses
       avatar.g.updateMatrixWorld(true);
       const bounds = new Box3().setFromObject(avatar.body, true);
       assert.ok(Number.isFinite(bounds.min.y));
-      assert.ok(Math.abs(bounds.min.y - y - .05) < .002, `${mode}: feet at ${bounds.min.y}, base ${y}`);
-      if (mode === 'roll' && frame > 8) assert.ok(bounds.max.y - bounds.min.y < .9);
+      assert.ok(Math.abs(bounds.min.y - y - .05) < (mode === 'fly' ? .04 : .002), `${mode}: feet at ${bounds.min.y}, base ${y}`);
+      if (mode === 'roll' && frame >= 5 && frame <= 17) assert.ok(bounds.max.y - bounds.min.y < 1.45);
     }
   }
   assert.ok(avatar.collider.halfWidth >= .3 && avatar.collider.halfWidth <= .48);
@@ -50,4 +50,56 @@ test('restart clones use independent bones and preserve the cached template', as
   assert.notEqual(bonesA[0], bonesB[0]);
   assert.ok(bonesA.some((bone, i) => !bone.quaternion.equals(bonesB[i].quaternion)));
   a.dispose(); b.dispose();
+});
+
+test('slide bends bones without shrinking and restores running collision height', async () => {
+  const avatar = createAvatar(assert.fail);
+  await new Promise(resolve => setImmediate(resolve));
+  const scales = new Map();
+  avatar.body.traverse(node => scales.set(node.uuid, node.scale.clone()));
+  for (let frame = 0; frame < 48; frame++) {
+    avatar.update(1 / 60, { mode: 'roll', rollProgress: frame / 48 });
+    avatar.body.traverse(node => assert.ok(node.scale.equals(scales.get(node.uuid)), `${node.name} scaled`));
+    if (frame >= 12 && frame < 32) assert.ok(avatar.collider.currentHeight < 1.5);
+  }
+  for (let frame = 0; frame < 20; frame++) avatar.update(1 / 60, { mode: 'run', grounded: true });
+  assert.ok(avatar.collider.currentHeight > 2);
+  assert.equal(avatar.diagnostics.mode, 'run');
+  assert.equal(avatar.diagnostics.action, 'Metro_run');
+  assert.deepEqual(avatar.diagnostics.authored, []);
+  avatar.dispose();
+});
+
+test('jump and flight keep moving bones and landing uses a recovery clip', async () => {
+  const avatar = createAvatar(assert.fail);
+  await new Promise(resolve => setImmediate(resolve));
+  for (const mode of ['jump', 'fly']) {
+    let before;
+    avatar.update(.04, { mode, velocityY: 8, grounded: false });
+    const bones = [];
+    avatar.body.traverse(node => { if (node.isBone) bones.push(node); });
+    before = bones.map(node => node.quaternion.clone());
+    for (let frame = 0; frame < 12; frame++) avatar.update(1 / 60, { mode, velocityY: 5, grounded: false });
+    assert.ok(bones.filter((node, i) => node.quaternion.angleTo(before[i]) > .02).length >= 4, `${mode} frozen`);
+  }
+  avatar.update(1 / 60, { mode: 'run', grounded: true });
+  assert.equal(avatar.diagnostics.action, 'Metro_land');
+  for (let frame = 0; frame < 20; frame++) avatar.update(1 / 60, { mode: 'run', grounded: true });
+  assert.equal(avatar.diagnostics.action, 'Metro_run');
+  avatar.dispose();
+});
+
+test('flight animation is consistent at 30 and 60 FPS', async () => {
+  const avatars = [createAvatar(assert.fail), createAvatar(assert.fail)];
+  await new Promise(resolve => setImmediate(resolve));
+  const rotations = [];
+  for (let i = 0; i < 2; i++) {
+    const fps = i ? 60 : 30;
+    for (let frame = 0; frame < fps; frame++) avatars[i].update(1 / fps, { mode: 'fly', grounded: false });
+    const bones = [];
+    avatars[i].body.traverse(node => { if (node.isBone) bones.push(node.quaternion.clone()); });
+    rotations.push(bones);
+  }
+  rotations[0].forEach((q, i) => assert.ok(q.angleTo(rotations[1][i]) < .002));
+  avatars.forEach(avatar => avatar.dispose());
 });
