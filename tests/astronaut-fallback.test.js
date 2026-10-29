@@ -1,0 +1,23 @@
+import fs from 'node:fs';
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { DefaultLoadingManager, Texture } from 'three';
+import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+globalThis.window={URL};
+DefaultLoadingManager.addHandler(/.*/,{load:()=>new Texture(),setPath(){return this}});
+const bytes=fs.readFileSync('public/models/avatar/model.fbx');
+const source=new FBXLoader().parse(bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength),'');
+FBXLoader.prototype.loadAsync=async()=>source;
+GLTFLoader.prototype.loadAsync=async()=>{throw new Error('test: astronaut unavailable')};
+const oldWarn=console.warn;console.warn=()=>{};
+const {createPlayer,astronautInfo}=await import('../src/player.js');
+test('missing astronaut preserves a playable original avatar and safe flight',async()=>{
+  const player=createPlayer(assert.fail);await player.ready;console.warn=oldWarn;
+  assert.equal(astronautInfo.status,'error');
+  player.flight.collect();player.flight.update(1);
+  player.g.position.y=player.flight.height;
+  assert.doesNotThrow(()=>player.update(.04,{mode:'fly',grounded:false}));
+  assert.equal(player.body.visible,true);assert.equal(player.flight.protected,true);
+  player.reset();player.dispose();
+});

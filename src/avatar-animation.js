@@ -9,9 +9,17 @@ export function buildAvatarAnimations(root) {
   root.traverse(bone => {
     if (!bone.isBone || bone.position.lengthSq() < 1e-8) return;
     if (!/^(Left|Right)(Arm|ForeArm|UpLeg|Leg|Foot)$|^Spine[012]?$|^Neck$|^Head$/.test(bone.name)) return;
-    rest.push({ bone, q: bone.quaternion.clone(), side: bone.name.startsWith('Left') ? 1 : -1 });
+    let armDrop;
+    if(/^(Left|Right)Arm$/.test(bone.name)){
+      const child=bone.children.find(c=>c.isBone&&/ForeArm/.test(c.name));
+      if(child){const direction=child.getWorldPosition(new T.Vector3()).sub(bone.getWorldPosition(new T.Vector3())).applyQuaternion(rootRotation.clone().invert());
+        const side=bone.name.startsWith('Left')?1:-1;
+        armDrop=Math.atan2(-.98,side*.18)-Math.atan2(direction.y,direction.x);
+        armDrop=Math.atan2(Math.sin(armDrop),Math.cos(armDrop));}
+    }
+    rest.push({ bone, q: bone.quaternion.clone(), side: bone.name.startsWith('Left') ? 1 : -1,armDrop });
   });
-  const definitions = { idle: 2.4, run: .68, takeoff: .11, jump: .9, fly: 1.8, roll: .8, land: .24 };
+  const definitions = { idle: 2.4, run: .68, board:1.8, takeoff: .11, jump: .9, fly: 1.8, roll: .8, land: .24 };
   const clips = {};
   for (const [mode, duration] of Object.entries(definitions)) {
     const frames = Math.ceil(duration * 30), tracks = [], times = [];
@@ -27,6 +35,7 @@ export function buildAvatarAnimations(root) {
         const inverse = joint.bone.parent.getWorldQuaternion(new T.Quaternion()).invert();
         const axis = vector => vector.applyQuaternion(rootRotation).applyQuaternion(inverse).normalize();
         const angles = poseAngles(mode, t, joint.bone.name, joint.side);
+        if(joint.armDrop!==undefined)angles.z+=joint.armDrop+joint.side*1.32;
         const q = joint.q.clone();
         q.premultiply(new T.Quaternion().setFromAxisAngle(axis(new T.Vector3(0, 0, 1)), angles.z));
         q.premultiply(new T.Quaternion().setFromAxisAngle(axis(new T.Vector3(1, 0, 0)), angles.x));
@@ -75,6 +84,12 @@ function poseAngles(mode, t, name, side) {
     if (forearm) x = -.65 + Math.sin(t * Math.PI * 2) * .2;
     if (spine) x = .07 + Math.sin(t * Math.PI) * .04;
     if (head) x = -.08;
+  } else if (mode === 'board') {
+    if(arm){x=-.18+cycle*.05;z+=side*.38;}
+    if(forearm)x=-.6;
+    if(thigh)x=-.32+cycle*.025;
+    if(knee)x=.65;
+    if(spine)x=.06+cycle*.012;
   } else if (mode === 'fly') {
     if (arm) { x = -.3 + cycle * .12; z += side * .24; }
     if (forearm) x = -.9 + Math.cos(t * Math.PI * 2 + side) * .15;
