@@ -36,7 +36,7 @@ Past to‘siqdan sakrang, baland to‘siq ostidan sirpaning. Poyezddan chetlanin
 
 | Saqlanadigan ID | Yangi model | Narx | Runtime fayl |
 |---|---|---:|---|
-| `aziz` | Humano biznesmen | 0 | `public/models/characters/aziz.glb` |
+| `aziz` | Near Future Soldier | 0 | `public/models/characters/aziz.glb` |
 | `lola` | Hulk | 150 | `public/models/characters/lola.glb` |
 | `sardor` | TASM 2 | 300 | `public/models/characters/sardor.glb` |
 
@@ -48,11 +48,11 @@ Do‘kon preview’si alohida maket emas: `src/shop-preview.js` o‘yindagi shu 
 
 Uchala yangi modelda ham tayyor animatsiya kliplari yo‘q. Yugurish, itarilish, sakrash, sirpanish, qo‘nish, hoverboard va uchish kliplari `src/avatar-animation.js` orqali yaratiladi; `AnimationMixer` va crossfade bilan ijro etiladi. Model masshtabi harakat vaqtida o‘zgarmaydi. Yo‘lak va fizik balandlik umumiy `playerRoot` bilan boshqariladi; kliplar root motion qo‘shmaydi.
 
-- **Humano:** ZIP ichidagi FBX 6100 formati Three.js tomonidan o‘qilmaydi. Arxivdagi 30K OBJ va diffuse/normal rasmlaridan GLB yaratildi. Manba skeletsiz, qo‘llari cho‘ntakdagi skan; taxminiy avtomatik skin/rig qo‘shildi. Oyoq va gavda harakatlanadi, ammo qo‘llar skanga birikkanligi sabab tabiiy qo‘l siltash cheklangan. Professional rig sifatida ko‘rsatilmaydi.
+- **Near Future Soldier:** Near_future_soldier__0123183948.fbx va PNG ishlatiladi. Manbada skelet va tayyor kliplar yo‘q. 20 bo‘g‘imli taxminiy skelet, anatomik skin og‘irliklari va AnimationMixer orqali run/jump/land/roll/board/fly kliplari qo‘shimcha yaratiladi. Bu professional qo‘lda rig qilingan model emas; murakkab zirh bo‘g‘imlarida deformatsiya bo‘lishi mumkin.
 - **Hulk:** Mixamo skeleti va haqiqiy skin weight’lari umumiy 20 ta anatomik bo‘g‘imga qayta bog‘landi. FBX tilga olgan `hulk_c.png`, pants, hair va boshqa texture fayllari yuborilmagan. Yo‘q rasmlarga so‘rov yuborilmaydi: yashil tana, binafsha kiyim va soch uchun PBR rangli materiallar ishlatiladi. Bu original texture tiklandi degani emas.
 - **TASM 2:** Rigify’ning `DEF-*` deformatsiya suyaklari va weight’lari umumiy rigga qayta bog‘landi; bu faqat suyak nomlarini almashtirish emas. Skinlanmagan to‘r/logo qismlariga yaqin tana vertex’laridan weight ko‘chirildi. Root’ga bog‘langan taglik oyoqlarga qayta skinlandi. 1001–1010 UDIM body diffuse/normal rasmlari 5×2 atlasga joylandi, UV’lar qayta hisoblandi; 1012 ko‘z linzasi alohida moslandi.
 
-GLB hajmlari taxminan Humano 1.1 MB, Hulk 9.2 MB, TASM 4.2 MB; texture’lar alohida JPEG. CPU collision hisoblari bo‘g‘im ekstremumlari va sirt namunalaridan foydalanadi. Telefonning GPU quvvatiga qarab, ayniqsa Hulk va soyalar tezlikka ta’sir qilishi mumkin.
+GLB hajmlari taxminan Soldier 9 MB, Hulk 9.2 MB, TASM 4.2 MB; texture’lar alohida JPEG/PNG. CPU collision hisoblari bo‘g‘im ekstremumlari va sirt namunalaridan foydalanadi. Telefonning GPU quvvatiga qarab, ayniqsa Hulk va soyalar tezlikka ta’sir qilishi mumkin.
 
 Asl arxivlar Downloads’da qolgan. Ishchi nusxalar `assets-source/characters/` da va Git’dan chiqarilgan. Assetlarni qayta tayyorlash uchun shu manbalar kerak:
 
@@ -89,3 +89,19 @@ Buyum root’i yig‘ib olish nuqtasi bo‘lib qoladi; alohida child qismi yengi
 - `/?jetpackTest=1`: asosiy o‘yinning haqiqiy pickup yo‘li bilan jetpack, magnit, 2× va krossovkani chaqirish. Bu tugmalar production’da yo‘q.
 
 `npm test` eski saqlash ID/narxlarini, xarid/tanlash/saqlashni, har modelning skin index’larini, yerga turishini, masshtab o‘zgarmasligini, sirpanish balandligini, hoverboard klipini, kosmonavtdan aynan o‘sha modelga qaytishni, resurs tozalanishini hamda buyum collision nuqtasining siljimasligini tekshiradi. Build: `npm run build`.
+
+## Xaritalar va ob-havo
+
+Xaritalar menyusi: Shahar metrosi (bepul), Neon shahar (3 000), Cho‘l (5 000), Qorli shahar (7 000), Kosmik stansiya (10 000 tanga). Narx faqat birinchi muvaffaqiyatli xaridda yechiladi. Yangi localStorage maydonlari: maps, selectedMap, quality; avvalgi metro-runner ma’lumotlari saqlanadi.
+
+Har 5 000 ball chegarasi bir marta qayta ishlanadi. Har ikkinchi chegarada faqat ochilgan xaritalardan boshqa xarita tanlanadi; shu yangi xaritaga mos ob-havo birgalikda aniqlanadi. O‘tishlar navbat bilan 2.6 soniyada bajariladi. Bitta xarita ochiq bo‘lsa, faqat ob-havo o‘zgaradi. Menyudagi boshlang‘ich xarita avtomatik o‘tishlarda o‘zgarmaydi. Portal paytida oldindagi to‘siqlar tozalanadi va qisqa himoya ishlaydi; koordinatalar, jetpack, taxta va ball qayta boshlanmaydi.
+
+Besh muhitning geometriyasi oldindan tayyorlanadi, detallar material bo‘yicha birlashtiriladi, 12 ta segment aylanma ishlatiladi. Yomg‘ir chiziqlari, qor va chang uchun oldindan ajratilgan zarrachalar mavjud. Kosmosda yog‘ingarchilik o‘rniga yulduzlar, sayyora, qutb nuri yoki reaktor yoritilishi ishlaydi. Grafika menyusida Past/O‘rta/Yuqori tanlanadi; pixel ratio, soyalar, zarracha soni va dron effekti moslanadi.
+
+Faqat ishlab chiqish rejimida ?environmentTest&jetpackTest manzili haqiqiy o‘yin balli, muhit va jetpackni sinov tugmalari orqali boshqaradi. Bu tugmalar production build’da yo‘q. Pul berilmaydi; do‘kon xaridlari alohida avtomatik storage testlarida tekshiriladi. Chegara/navbat, pauza, qayta boshlash, eski ma’lumotlar va 18 ta ketma-ket o‘tishda sahna resurslarining barqarorligi tests/environment.test.js’da tekshiriladi.
+
+## FREE promokod
+
+Bosh menyudagi Promokod bo‘limi FREE kodini bo‘shliqlar va katta-kichik harflardan qat’i nazar qabul qiladi. Mavjud balansga bir marta 30 000 tanga qo‘shadi. redeemedPromos ro‘yxati profil bilan bir yozuvda localStorage’ga saqlanadi; yozish amalga oshmasa mukofot berilmaydi. Tez bosish UI band holati bilan, eski profil nusxasi esa saqlashni qayta o‘qish bilan himoyalanadi. Web Locks mavjud brauzerlarda tablar bir xil profil qulfidan foydalanadi. Backend yo‘q: cheklov faqat shu brauzer/origin profiliga tegishli; xotirani o‘chirish yoki o‘zgartirishdan server himoyasi yo‘q.
+
+Soldier runtime: public/models/characters/aziz.glb + soldier-color.png. ID aziz va narx 0 saqlanadi; boshqa tanlangan qahramon avtomatik o‘zgarmaydi. Qayta tayyorlash: node scripts/prepare-characters.mjs --free-only (manba FBX assets-source/characters/Soldier ichida bo‘lishi kerak). Oldingi Humano texture’lari runtime’dan chiqarildi; manba arxivlar va zaxira GLB assets-source ichida saqlanadi.

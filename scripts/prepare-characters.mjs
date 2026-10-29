@@ -20,22 +20,22 @@ function role(name){
  if(/^DEF-pelvis/.test(name))return'Hips';return'Hips';
 }
 function canonicalPositions(){return{Hips:[0,1.15,0],Spine:[0,1.34,0],Spine1:[0,1.56,0],Spine2:[0,1.76,0],Neck:[0,1.96,0],Head:[0,2.06,0],
- LeftShoulder:[.17,1.88,0],LeftArm:[.29,1.8,0],LeftForeArm:[.36,1.49,-.04],LeftHand:[.31,1.2,-.06],RightShoulder:[-.17,1.88,0],RightArm:[-.29,1.8,0],RightForeArm:[-.36,1.49,-.04],RightHand:[-.31,1.2,-.06],
- LeftUpLeg:[.14,1.15,0],LeftLeg:[.17,.64,0],LeftFoot:[.19,.12,-.04],RightUpLeg:[-.14,1.15,0],RightLeg:[-.17,.64,0],RightFoot:[-.19,.12,-.04]}}
+ LeftShoulder:[.18,1.86,0],LeftArm:[.32,1.81,0],LeftForeArm:[.43,1.47,.01],LeftHand:[.47,1.02,.02],RightShoulder:[-.18,1.86,0],RightArm:[-.32,1.81,0],RightForeArm:[-.43,1.47,.01],RightHand:[-.47,1.02,.02],
+ LeftUpLeg:[.18,1.13,0],LeftLeg:[.23,.64,-.04],LeftFoot:[.3,.12,-.05],RightUpLeg:[-.18,1.13,0],RightLeg:[-.23,.64,-.04],RightFoot:[-.3,.12,-.05]}}
 function skinNear(point,positions){
- const options=[];for(const r of roles){if(r==='Head'){options.push([r,point.distanceToSquared(positions[r])]);continue}const child=roles.find(c=>parents[c]===r);if(!child)continue;
+ const options=[];for(const r of roles){if(r==='Head'){options.push([r,point.distanceToSquared(positions[r])]);continue}const child=roles.find(c=>parents[c]===r);if(!child){options.push([r,point.distanceToSquared(positions[r])]);continue;}
  const a=positions[r],b=positions[child],d=b.clone().sub(a),t=T.MathUtils.clamp(point.clone().sub(a).dot(d)/d.lengthSq(),0,1);
  options.push([r,point.distanceToSquared(a.clone().addScaledVector(d,t))]);}
- // Hands in the scan are fused into pockets; keep that area with the torso.
+ // The supplied soldier is a static mesh. Bind each surface to nearby anatomical segments.
  const side=point.x>0?'Left':'Right';
- let candidates=point.y<1.13?options.filter(([r])=>r.startsWith(side)&&/UpLeg|Leg|Foot/.test(r)):
+ let candidates=Math.abs(point.x)>.355&&point.y>.88&&point.y<1.91?options.filter(([r])=>r.startsWith(side)&&/Arm|Hand/.test(r)):point.y<1.13?options.filter(([r])=>r.startsWith(side)&&/UpLeg|Leg|Foot/.test(r)):
  point.y>1.94?options.filter(([r])=>/Head|Neck/.test(r)):options.filter(([r])=>/Spine|Hips/.test(r));
  candidates.sort((a,b)=>a[1]-b[1]);const closest=candidates.slice(0,2),weights=closest.map(([,d])=>1/(d+.002));const sum=weights.reduce((a,b)=>a+b,0);
  return{indices:closest.map(([r])=>roles.indexOf(r)),weights:weights.map(w=>w/sum)};
 }
-const files={aziz:'assets-source/characters/Humano_01BusinessOffice_01_C4D/ObjFbx/Humano_01Business_01_30K.obj',lola:'assets-source/characters/Hulk.fbx',sardor:'assets-source/characters/TASM 2/other format/TASM 2.fbx'};
-for(const[id,path]of Object.entries(files)){
- const bytes=await fs.readFile(path);const source=id==='aziz'?new OBJLoader().parse(bytes.toString()):new FBXLoader(manager).parse(bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength),'');source.updateMatrixWorld(true);
+const files={aziz:'assets-source/characters/Soldier/Near_future_soldier__0123183948_fbx/Near_future_soldier__0123183948.fbx',lola:'assets-source/characters/Hulk.fbx',sardor:'assets-source/characters/TASM 2/other format/TASM 2.fbx'};
+for(const[id,path]of Object.entries(files).filter(([id])=>!process.argv.includes('--free-only')||id==='aziz')){
+ const bytes=await fs.readFile(path);const source=path.toLowerCase().endsWith('.obj')?new OBJLoader().parse(bytes.toString()):new FBXLoader(manager).parse(bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength),'');source.updateMatrixWorld(true);
  const bounds=new T.Box3().setFromObject(source),height=bounds.max.y-bounds.min.y,center=bounds.getCenter(new T.Vector3());
  const normalize=p=>p.sub(new T.Vector3(center.x,bounds.min.y,center.z)).multiplyScalar(2.3/height);
  const positions=Object.fromEntries(Object.entries(canonicalPositions()).map(([k,p])=>[k,new T.Vector3(...p)]));
