@@ -1,9 +1,9 @@
 import fs from 'node:fs';import assert from 'node:assert/strict';import test from 'node:test';
 import * as T from 'three';import{GLTFLoader}from'three/addons/loaders/GLTFLoader.js';
 import{characters,chooseCharacter,load,save}from'../src/storage.js';
-const fixtures={};for(const id of ['aziz','lola','sardor']){const b=fs.readFileSync(`public/models/characters/${id}.glb`);fixtures[id]=await new GLTFLoader().parseAsync(b.buffer.slice(b.byteOffset,b.byteOffset+b.byteLength),'')}
+const fixtures={};for(const id of ['aziz','lola','sardor']){const b=fs.readFileSync(`public/models/characters/${id==='aziz'?'aziz-soldier':id}.glb`);fixtures[id]=await new GLTFLoader().parseAsync(b.buffer.slice(b.byteOffset,b.byteOffset+b.byteLength),'')}
 const b=fs.readFileSync('public/models/astronaut/Enceladus.glb');const astronaut=await new GLTFLoader().parseAsync(b.buffer.slice(b.byteOffset,b.byteOffset+b.byteLength),'');
-GLTFLoader.prototype.loadAsync=async url=>fixtures[url.split('/').at(-1).replace('.glb','')]||astronaut;
+GLTFLoader.prototype.loadAsync=async url=>fixtures[url.split('/').at(-1).replace('aziz-soldier','aziz').replace('.glb','')]||astronaut;
 T.TextureLoader.prototype.loadAsync=async()=>new T.Texture();
 const{createPlayer}=await import('../src/player.js');
 

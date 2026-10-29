@@ -36,7 +36,7 @@ Past to‘siqdan sakrang, baland to‘siq ostidan sirpaning. Poyezddan chetlanin
 
 | Saqlanadigan ID | Yangi model | Narx | Runtime fayl |
 |---|---|---:|---|
-| `aziz` | Near Future Soldier | 0 | `public/models/characters/aziz.glb` |
+| `aziz` | Near Future Soldier | 0 | `public/models/characters/aziz-soldier.glb` |
 | `lola` | Hulk | 150 | `public/models/characters/lola.glb` |
 | `sardor` | TASM 2 | 300 | `public/models/characters/sardor.glb` |
 
@@ -104,4 +104,4 @@ Faqat ishlab chiqish rejimida ?environmentTest&jetpackTest manzili haqiqiy o‘y
 
 Bosh menyudagi Promokod bo‘limi FREE kodini bo‘shliqlar va katta-kichik harflardan qat’i nazar qabul qiladi. Mavjud balansga bir marta 30 000 tanga qo‘shadi. redeemedPromos ro‘yxati profil bilan bir yozuvda localStorage’ga saqlanadi; yozish amalga oshmasa mukofot berilmaydi. Tez bosish UI band holati bilan, eski profil nusxasi esa saqlashni qayta o‘qish bilan himoyalanadi. Web Locks mavjud brauzerlarda tablar bir xil profil qulfidan foydalanadi. Backend yo‘q: cheklov faqat shu brauzer/origin profiliga tegishli; xotirani o‘chirish yoki o‘zgartirishdan server himoyasi yo‘q.
 
-Soldier runtime: public/models/characters/aziz.glb + soldier-color.png. ID aziz va narx 0 saqlanadi; boshqa tanlangan qahramon avtomatik o‘zgarmaydi. Qayta tayyorlash: node scripts/prepare-characters.mjs --free-only (manba FBX assets-source/characters/Soldier ichida bo‘lishi kerak). Oldingi Humano texture’lari runtime’dan chiqarildi; manba arxivlar va zaxira GLB assets-source ichida saqlanadi.
+Soldier runtime: public/models/characters/aziz-soldier.glb + soldier-color.png. ID aziz va narx 0 saqlanadi; boshqa tanlangan qahramon avtomatik o‘zgarmaydi. Qayta tayyorlash: node scripts/prepare-characters.mjs --free-only (manba FBX assets-source/characters/Soldier ichida bo‘lishi kerak). Oldingi Humano texture’lari runtime’dan chiqarildi; manba arxivlar va zaxira GLB assets-source ichida saqlanadi.

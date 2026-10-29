@@ -83,6 +83,6 @@ for(const[id,path]of Object.entries(files).filter(([id])=>!process.argv.includes
   const materials=[mesh.material].flat().map((m,i)=>{const mat=new T.MeshStandardMaterial({color,roughness:.72,metalness:.03});mat.name=`${id}_${mesh.name}_${i}`;return mat});
   compact.clearGroups();const skinned=new T.SkinnedMesh(compact,materials[0]);skinned.name=mesh.name;group.add(skinned);skinned.bind(skeleton);skinned.normalizeSkinWeights();
  }
- const binary=await new GLTFExporter().parseAsync(group,{binary:true});await fs.writeFile(`public/models/characters/${id}.glb`,Buffer.from(binary));
+ const binary=await new GLTFExporter().parseAsync(group,{binary:true});await fs.writeFile(`public/models/characters/${id==='aziz'?'aziz-soldier':id}.glb`,Buffer.from(binary));
  console.log(JSON.stringify({id,sourceClips:source.animations.map(c=>c.name),rig:group.userData.rig,vertexCount,bytes:binary.byteLength}));
 }

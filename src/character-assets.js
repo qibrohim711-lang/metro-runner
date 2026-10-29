@@ -11,7 +11,7 @@ function texture(name,color=true){
 export function getCharacterAsset(id){
   if(cache.has(id))return cache.get(id);
   characterAssetInfo[id]={status:'loading'};
-  const promise=new GLTFLoader().loadAsync(`${base}${id}.glb`).then(async gltf=>{
+  const promise=new GLTFLoader().loadAsync(`${base}${id==='aziz'?'aziz-soldier':id}.glb`).then(async gltf=>{
     let color,normal,lenses,sole;
     if(id==='aziz')color=await texture('soldier-color.png');
     if(id==='sardor')[color,normal,lenses,sole]=await Promise.all([texture('tasm-color.jpg'),texture('tasm-normal.jpg',false),texture('tasm-lenses.jpg'),texture('tasm-sole.jpg')]);
